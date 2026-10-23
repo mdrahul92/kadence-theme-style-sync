@@ -35,7 +35,7 @@ final class Settings {
 	/**
 	 * The stored settings merged over the defaults.
 	 *
-	 * @return array{parts: array<string, bool>, maps: array<string, array<string, string>>, channel: string}
+	 * @return array{parts: array<string, bool>, maps: array<string, array<string, string>>}
 	 */
 	public static function get(): array {
 		$stored = get_option( self::OPTION, [] );
@@ -47,9 +47,8 @@ final class Settings {
 		}
 
 		return [
-			'parts'   => $parts,
-			'maps'    => is_array( $stored['maps'] ?? null ) ? $stored['maps'] : [],
-			'channel' => ( $stored['channel'] ?? '' ) === 'beta' ? 'beta' : 'stable',
+			'parts' => $parts,
+			'maps'  => is_array( $stored['maps'] ?? null ) ? $stored['maps'] : [],
 		];
 	}
 
@@ -116,9 +115,8 @@ final class Settings {
 		}
 
 		return [
-			'parts'   => $parts,
-			'maps'    => $maps,
-			'channel' => ( $input['channel'] ?? '' ) === 'beta' ? 'beta' : 'stable',
+			'parts' => $parts,
+			'maps'  => $maps,
 		];
 	}
 }

@@ -2,7 +2,7 @@
 Contributors: wpblocks.dev
 Requires at least: 6.5
 Requires PHP: 7.4
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: GPLv2 or later
 
 Feeds the active theme's global styles into the Kadence Blocks Style Library (Kadence Blocks 3.8+) as its defaults. Works with any block theme through WordPress global styles, with a richer adapter for Blocksy.

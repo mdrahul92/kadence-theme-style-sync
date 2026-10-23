@@ -264,7 +264,6 @@ final class Admin {
 				'section' => __( 'Sync', 'kadence-theme-style-sync' ),
 				'title'   => __( 'Overview', 'kadence-theme-style-sync' ),
 				'icon'    => 'overview',
-				'form'    => true,
 				'render'  => [ $this, 'render_overview' ],
 			],
 		];
@@ -387,8 +386,6 @@ final class Admin {
 	private function render_updates(): void {
 		$p        = self::PREFIX;
 		$latest   = Updater::latest();
-		$channel  = Updater::channel();
-		$locked   = defined( 'KTSS_UPDATE_CHANNEL' );
 		$auto     = in_array( plugin_basename( KTSS_FILE ), (array) get_site_option( 'auto_update_plugins', [] ), true );
 		$newer    = $latest !== null && version_compare( $latest['version'], KTSS_VERSION, '>' );
 		$check    = wp_nonce_url( add_query_arg( 'ktss-check-updates', '1' ), 'ktss-check-updates' );
@@ -405,28 +402,10 @@ final class Admin {
 						<a class="components-button is-secondary" href="<?php echo esc_url( self_admin_url( 'update-core.php' ) ); ?>"><?php esc_html_e( 'Update now', 'kadence-theme-style-sync' ); ?></a>
 					<?php elseif ( $latest !== null ) : ?>
 						<?php $this->pill( __( 'Up to date', 'kadence-theme-style-sync' ), 'success' ); ?>
-					<?php elseif ( ! Updater::has_token() ) : ?>
-						<?php $this->pill( __( 'Add KTSS_GITHUB_TOKEN to wp-config.php', 'kadence-theme-style-sync' ), 'warning', __( 'The repository is private: updates need a read-only GitHub token on this site.', 'kadence-theme-style-sync' ) ); ?>
 					<?php else : ?>
-						<?php $this->pill( __( 'No release found', 'kadence-theme-style-sync' ), 'inherited' ); ?>
+						<?php $this->pill( __( 'Could not reach GitHub', 'kadence-theme-style-sync' ), 'inherited', __( 'Checked again automatically within the hour.', 'kadence-theme-style-sync' ) ); ?>
 					<?php endif; ?>
 					<a class="components-button is-secondary" href="<?php echo esc_url( $check ); ?>"><?php esc_html_e( 'Check now', 'kadence-theme-style-sync' ); ?></a>
-				</div>
-			</li>
-			<li class="<?php echo esc_attr( $p ); ?>list-row">
-				<div class="<?php echo esc_attr( $p ); ?>list-row-main ktss-row">
-					<span class="<?php echo esc_attr( $p ); ?>list-row-label">
-						<?php esc_html_e( 'Update channel', 'kadence-theme-style-sync' ); ?>
-						<span class="ktss-row-hint ktss-row-hint--plain"><?php esc_html_e( 'Beta also installs pre-releases. Use it on staging.', 'kadence-theme-style-sync' ); ?></span>
-					</span>
-					<select class="ktss-select" name="<?php echo esc_attr( Settings::OPTION . '[channel]' ); ?>" <?php disabled( $locked ); ?>>
-						<option value="stable" <?php selected( $channel, 'stable' ); ?>><?php esc_html_e( 'Stable', 'kadence-theme-style-sync' ); ?></option>
-						<option value="beta" <?php selected( $channel, 'beta' ); ?>><?php esc_html_e( 'Beta (pre-releases)', 'kadence-theme-style-sync' ); ?></option>
-					</select>
-					<?php if ( $locked ) : ?>
-						<input type="hidden" name="<?php echo esc_attr( Settings::OPTION . '[channel]' ); ?>" value="<?php echo esc_attr( $channel ); ?>" />
-						<span class="ktss-row-text ktss-row-text--muted"><?php esc_html_e( 'Set by KTSS_UPDATE_CHANNEL in wp-config.php', 'kadence-theme-style-sync' ); ?></span>
-					<?php endif; ?>
 				</div>
 			</li>
 			<li class="<?php echo esc_attr( $p ); ?>list-row">

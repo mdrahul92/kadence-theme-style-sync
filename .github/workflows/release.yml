@@ -37,7 +37,5 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          FLAGS=""
-          case "$GITHUB_REF_NAME" in *-*) FLAGS="--prerelease" ;; esac
           gh release create "$GITHUB_REF_NAME" build/kadence-theme-style-sync.zip \
-            --title "$GITHUB_REF_NAME" --generate-notes $FLAGS
+            --title "$GITHUB_REF_NAME" --generate-notes

@@ -4,8 +4,7 @@
  * the `update_plugins_github.com` filter), so new versions show under Dashboard → Updates and install like
  * any other plugin, auto-updates included.
  *
- * Channels: "stable" takes the newest normal release, "beta" also takes pre-releases, so a staging site can
- * run a release before it reaches every live site.
+ * Drafts and pre-releases are ignored.
  *
  * A private repository needs a read-only token in wp-config.php: define( 'KTSS_GITHUB_TOKEN', '…' );
  *
@@ -24,7 +23,7 @@ final class Updater {
 
 	private const ASSET = 'kadence-theme-style-sync.zip';
 
-	private const CACHE = 'ktss_github_release_';
+	private const CACHE = 'ktss_github_release';
 
 	private const CACHE_TTL = 6 * HOUR_IN_SECONDS;
 
@@ -42,24 +41,12 @@ final class Updater {
 	}
 
 	/**
-	 * The update channel: the KTSS_UPDATE_CHANNEL constant, else the saved setting.
-	 */
-	public static function channel(): string {
-		if ( defined( 'KTSS_UPDATE_CHANNEL' ) && in_array( KTSS_UPDATE_CHANNEL, [ 'stable', 'beta' ], true ) ) {
-			return KTSS_UPDATE_CHANNEL;
-		}
-
-		return Settings::get()['channel'];
-	}
-
-	/**
-	 * The newest release on the channel, or null (none yet, or GitHub unreachable).
+	 * The newest published release, or null (none yet, or GitHub unreachable).
 	 *
 	 * @return array{version: string, tag: string, package: string, url: string, notes: string, published: string, prerelease: bool}|null
 	 */
 	public static function latest( bool $force = false ): ?array {
-		$channel = self::channel();
-		$key     = self::CACHE . $channel;
+		$key = self::CACHE;
 
 		if ( ! $force ) {
 			$cached = get_site_transient( $key );
@@ -87,7 +74,7 @@ final class Updater {
 		$best     = null;
 
 		foreach ( is_array( $releases ) ? $releases : [] as $release ) {
-			if ( ! is_array( $release ) || ! empty( $release['draft'] ) || ( ! empty( $release['prerelease'] ) && $channel !== 'beta' ) ) {
+			if ( ! is_array( $release ) || ! empty( $release['draft'] ) || ! empty( $release['prerelease'] ) ) {
 				continue;
 			}
 
@@ -316,8 +303,9 @@ final class Updater {
 	}
 
 	public static function flush(): void {
-		delete_site_transient( self::CACHE . 'stable' );
-		delete_site_transient( self::CACHE . 'beta' );
+		delete_site_transient( self::CACHE );
+		delete_site_transient( 'ktss_github_release_stable' ); // 1.2.0–1.2.1 cache keys.
+		delete_site_transient( 'ktss_github_release_beta' );
 	}
 
 	/**
