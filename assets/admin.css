@@ -1,0 +1,231 @@
+/*
+ * Theme Style Sync screen. Layout, tokens and components come from the Kadence Style Library stylesheet
+ * (loaded first); this only adds what that screen has no component for.
+ */
+
+.ktss-root .ktss-screen {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	min-height: 0;
+}
+
+.ktss-root .ktss-screen[hidden] {
+	display: none;
+}
+
+/* Header */
+.ktss-root .ktss-header-theme {
+	color: var(--kb-sl-color-text-primary);
+	font-size: var(--kb-sl-font-size-xl);
+	font-weight: var(--kb-sl-font-weight-medium);
+	line-height: var(--kb-sl-line-height-xl, 1.5);
+}
+
+.ktss-root .ktss-header-actions {
+	margin-left: auto;
+}
+
+.ktss-root .kadence-blocks-style-library__header-actions .components-button,
+.ktss-root .kadence-blocks-style-library__screen-header-primary-action .components-button {
+	height: auto;
+	padding: var(--kb-sl-space-10) var(--kb-sl-space-20);
+	font-size: var(--kb-sl-font-size-m);
+	font-weight: var(--kb-sl-font-weight-medium);
+	text-decoration: none;
+}
+
+.ktss-root .ktss-screen-subtitle {
+	color: var(--kb-sl-color-text-secondary);
+	font-size: var(--kb-sl-font-size-18);
+}
+
+/* Nav counts, same look as the Style Library's block preset counts */
+.ktss-root .ktss-nav-label {
+	flex: 1 1 auto;
+	text-align: left;
+}
+
+.ktss-root .ktss-nav-count {
+	margin-left: auto;
+	color: var(--kb-sl-color-nav-tab-count);
+	font-size: var(--kb-sl-font-size-nav-tab-count);
+	font-weight: var(--kb-sl-font-weight-regular);
+}
+
+/* Section headings and copy */
+.ktss-root .ktss-section-heading {
+	display: flex;
+	flex-direction: column;
+	gap: var(--kb-sl-space-05);
+}
+
+.ktss-root .ktss-prose {
+	max-width: var(--kb-sl-size-text-max-width);
+	margin: 0;
+	color: var(--kb-sl-color-text-primary);
+	font-size: var(--kb-sl-font-size-m);
+	line-height: 1.6;
+}
+
+.ktss-root .ktss-prose p {
+	margin: 0 0 var(--kb-sl-space-10);
+}
+
+.ktss-root .ktss-prose--muted {
+	color: var(--kb-sl-color-text-secondary);
+}
+
+/* Rows: the Style Library's list rows, without the editor affordances */
+.ktss-root .ktss-list {
+	border: 1px solid var(--kb-sl-color-border);
+	border-radius: var(--kb-sl-radius-l);
+	overflow: hidden;
+}
+
+.ktss-root .ktss-list .kadence-blocks-style-library__list-row:hover:not(.kadence-blocks-style-library__list-row--selected) {
+	box-shadow: none;
+}
+
+.ktss-root .ktss-row {
+	box-sizing: border-box;
+	gap: var(--kb-sl-space-30);
+	padding: var(--kb-sl-space-20) var(--kb-sl-list-row-inset, 1.25rem);
+	cursor: default;
+}
+
+.ktss-root .ktss-row--toggle {
+	cursor: pointer;
+}
+
+.ktss-root .ktss-row .kadence-blocks-style-library__list-row-label {
+	display: flex;
+	flex-direction: column;
+	gap: var(--kb-sl-space-02);
+	width: 12rem;
+}
+
+.ktss-root .ktss-row .kadence-blocks-style-library__list-row-value {
+	width: auto;
+	min-width: 4.5rem;
+	line-height: 1.2;
+}
+
+.ktss-root .ktss-row-hint {
+	color: var(--kb-sl-color-text-muted);
+	font-family: var(--kb-sl-font-family-monospace);
+	font-size: var(--kb-sl-font-size-xs);
+	font-weight: var(--kb-sl-font-weight-regular);
+	line-height: 1.3;
+}
+
+.ktss-root .ktss-row-hint--plain {
+	font-family: inherit;
+	font-size: var(--kb-sl-font-size-s);
+}
+
+.ktss-root .ktss-row-text {
+	flex: 1 1 auto;
+	min-width: 0;
+	color: var(--kb-sl-color-text-primary);
+	font-size: var(--kb-sl-font-size-m);
+}
+
+.ktss-root .ktss-row-text--muted {
+	color: var(--kb-sl-color-text-secondary);
+}
+
+.ktss-root .ktss-code {
+	flex: 1 1 auto;
+	min-width: 0;
+	padding: 0;
+	overflow-wrap: anywhere;
+	background: none;
+	color: var(--kb-sl-color-text-secondary);
+	font-family: var(--kb-sl-font-family-monospace);
+	font-size: var(--kb-sl-font-size-xs);
+}
+
+/* Color chip, sized like a compact swatch preview */
+.ktss-root .ktss-chip {
+	box-sizing: border-box;
+	flex: 0 0 auto;
+	width: var(--kb-sl-space-50);
+	height: var(--kb-sl-space-50);
+	border: var(--kb-sl-border-width-input) solid var(--kb-sl-color-gray-200-tint-60);
+	border-radius: var(--kb-sl-radius-m);
+}
+
+.ktss-root .ktss-chip--empty {
+	border-style: dashed;
+	border-color: var(--kb-sl-color-gray-300);
+}
+
+.ktss-root .ktss-font-preview {
+	display: flex;
+	flex: 0 0 auto;
+	align-items: center;
+	justify-content: center;
+	width: var(--kb-sl-space-50);
+	height: var(--kb-sl-space-50);
+	border-radius: var(--kb-sl-radius-m);
+	background: var(--kb-sl-color-tile-surface);
+	color: var(--kb-sl-color-text-primary);
+	font-size: var(--kb-sl-font-size-24);
+}
+
+/* Native select styled as the Style Library's dropdown toggles */
+.ktss-root .ktss-select {
+	flex: 0 1 18rem;
+	min-width: 12rem;
+	min-height: var(--kb-sl-size-button-medium);
+	padding: 0 var(--kb-sl-space-40) 0 var(--kb-sl-space-15);
+	border: var(--kb-sl-border-width-input) solid var(--kb-sl-color-control-border);
+	border-radius: var(--kb-sl-radius-m);
+	background-color: var(--kb-sl-color-surface);
+	color: var(--kb-sl-color-text-primary);
+	font-size: var(--kb-sl-font-size-m);
+	line-height: 1.4;
+	box-shadow: none;
+}
+
+.ktss-root .ktss-select:focus {
+	border-color: var(--kb-sl-color-control-border-focus);
+	outline: none;
+	box-shadow: 0 0 0 0.5px var(--kb-sl-color-control-border-focus);
+}
+
+.ktss-root .ktss-select.is-changed {
+	border-color: var(--kb-sl-color-theme);
+	background-color: var(--kb-sl-color-theme-tint-4);
+}
+
+/* Pills: Kadence's inheritance pill, plus state colors */
+.ktss-root .ktss-pill {
+	flex: 0 0 auto;
+	white-space: nowrap;
+}
+
+.ktss-root .ktss-pill--success {
+	background: color-mix(in srgb, var(--kb-sl-color-alert-green) 14%, transparent);
+	color: #1e6b33;
+}
+
+.ktss-root .ktss-pill--warning {
+	background: color-mix(in srgb, var(--kb-sl-color-alert-yellow) 22%, transparent);
+	color: #7a5200;
+	cursor: help;
+}
+
+.ktss-root [data-ktss-saved] {
+	transition: opacity 0.4s ease;
+}
+
+.ktss-root [data-ktss-saved].is-hidden {
+	opacity: 0;
+}
+
+/* Static swatch cards (not editable here) */
+.ktss-root .ktss-static {
+	cursor: default;
+}
