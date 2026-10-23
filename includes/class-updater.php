@@ -170,7 +170,7 @@ final class Updater {
 			'name'          => 'Theme Style Sync for Kadence Blocks',
 			'slug'          => self::SLUG,
 			'version'       => $release['version'] ?? KTSS_VERSION,
-			'author'        => 'Svents',
+			'author'        => '<a href="https://wpblocks.dev">wpblocks.dev</a>',
 			'homepage'      => 'https://github.com/' . self::REPOSITORY,
 			'requires'      => '6.5',
 			'requires_php'  => '7.4',
