@@ -24,9 +24,9 @@ Per site on the plugin's Overview screen, or for a whole server in `wp-config.ph
 define( 'KTSS_UPDATE_CHANNEL', 'beta' ); // or 'stable'
 ```
 
-## Private repository
+## Private repository (optional)
 
-If this repository is private, every site needs a read-only fine-grained token (Contents: read, this repository only) in `wp-config.php`:
+The repository is public, so sites need no token. If it is ever made private, every site needs a read-only fine-grained token (Contents: read, this repository only) in `wp-config.php`:
 
 ```php
 define( 'KTSS_GITHUB_TOKEN', 'github_pat_…' );
