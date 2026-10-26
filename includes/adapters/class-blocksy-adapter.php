@@ -329,6 +329,56 @@ final class Blocksy_Adapter implements Theme_Adapter {
 		return true;
 	}
 
+	/**
+	 * Every family picked in any Blocksy typography control (base, headings, buttons, header and footer
+	 * builder items…), found by walking the theme mods for typography values, plus the families added to
+	 * Blocksy's Local Google Fonts extension. "Default" / "System Default" and uploaded fonts are skipped.
+	 */
+	public function font_families(): array {
+		$families = [];
+		$mods     = get_theme_mods();
+
+		self::collect_families( is_array( $mods ) ? $mods : [], $families );
+
+		$local = get_option( 'blocksy_ext_local_google_fonts_settings', [] );
+
+		foreach ( is_array( $local['fonts'] ?? null ) ? $local['fonts'] : [] as $font ) {
+			if ( is_array( $font ) && is_string( $font['name'] ?? null ) ) {
+				$families[] = $font['name'];
+			}
+		}
+
+		$out = [];
+
+		foreach ( $families as $family ) {
+			$family = trim( $family );
+
+			if ( $family === '' || in_array( strtolower( $family ), [ 'default', 'system default' ], true ) || strpos( $family, 'ct_font_' ) === 0 || strpos( $family, 'var(' ) === 0 ) {
+				continue;
+			}
+
+			$out[ strtolower( $family ) ] = $family;
+		}
+
+		return array_values( $out );
+	}
+
+	/**
+	 * @param array<mixed> $node     A theme mod value.
+	 * @param string[]     $families Collected family names.
+	 */
+	private static function collect_families( array $node, array &$families ): void {
+		if ( isset( $node['family'] ) && is_string( $node['family'] ) && ( isset( $node['variation'] ) || isset( $node['size'] ) ) ) {
+			$families[] = $node['family'];
+		}
+
+		foreach ( $node as $child ) {
+			if ( is_array( $child ) ) {
+				self::collect_families( $child, $families );
+			}
+		}
+	}
+
 	public function fonts_hint(): string {
 		return __( 'Upload fonts with Blocksy’s Custom Fonts extension or turn on Local Google Fonts, and they appear in every Kadence font picker.', 'kadence-theme-style-sync' );
 	}

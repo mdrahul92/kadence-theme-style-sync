@@ -30,12 +30,25 @@ jobs:
       - name: Build zip
         run: |
           mkdir -p build/kadence-theme-style-sync
-          rsync -a --exclude '.git' --exclude '.github' --exclude 'build' --exclude 'README.md' ./ build/kadence-theme-style-sync/
+          rsync -a --exclude '.git' --exclude '.github' --exclude 'build' --exclude 'README.md' --exclude 'notes.md' ./ build/kadence-theme-style-sync/
           cd build && zip -rq kadence-theme-style-sync.zip kadence-theme-style-sync
+
+      - name: Release notes from CHANGELOG.md
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          awk -v v="$VERSION" '
+            /^## / { if (found) exit; if (index($0, "## " v " ") == 1 || $0 == "## " v) { found = 1; next } }
+            found { print }
+          ' CHANGELOG.md > notes.md
+          if [ ! -s notes.md ]; then
+            echo "CHANGELOG.md has no section for $VERSION"
+            exit 1
+          fi
+          cat notes.md
 
       - name: Publish release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create "$GITHUB_REF_NAME" build/kadence-theme-style-sync.zip \
-            --title "$GITHUB_REF_NAME" --generate-notes
+            --title "$GITHUB_REF_NAME" --notes-file notes.md

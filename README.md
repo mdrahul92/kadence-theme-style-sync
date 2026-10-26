@@ -6,7 +6,7 @@ Feeds the active theme's global styles (palette, extra colors, text/link colors,
 
 Sites update themselves from this repository's GitHub Releases (Dashboard → Updates, auto-updates on by default).
 
-1. Bump the version in `kadence-theme-style-sync.php` (both the `Version:` header and `KTSS_VERSION`) and `Stable tag` in `readme.txt`.
+1. Bump the version in `kadence-theme-style-sync.php` (both the `Version:` header and `KTSS_VERSION`) and `Stable tag` in `readme.txt`, and add a `## X.Y.Z - date` section to `CHANGELOG.md` (the release fails without one; it becomes the release notes).
 2. Commit and push.
 3. Tag and push: `git tag v1.2.3 && git push origin v1.2.3`
 

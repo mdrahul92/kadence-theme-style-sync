@@ -346,6 +346,7 @@ final class Sync {
 					$this->extra_tokens(),
 					$this->leaf_values(),
 					$this->preset_values(),
+					$adapter->font_families(),
 				]
 			)
 		);

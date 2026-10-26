@@ -35,6 +35,11 @@ final class Plugin {
 
 	private static bool $dirty = false;
 
+	/**
+	 * Option holding the last font sync outcome, for the settings screen.
+	 */
+	public const FONT_SYNC_OPTION = 'ktss_font_sync';
+
 	public static function sync(): ?Sync {
 		return self::$sync;
 	}
@@ -260,7 +265,33 @@ final class Plugin {
 		}
 
 		self::invalidate_kadence();
+		self::sync_fonts();
 		update_option( self::FINGERPRINT_OPTION, $fingerprint, true );
+	}
+
+	/**
+	 * Keep Kadence loading Google fonts locally and the theme's Google fonts in the Style Library favorites.
+	 * Runs when the theme's styles change, not on every request: favorites are a saved-document write.
+	 */
+	public static function sync_fonts(): void {
+		if ( self::$sync === null || ! self::kadence_supported() || ! did_action( 'init' ) ) {
+			return;
+		}
+
+		Font_Favorites::ensure_local_fonts();
+
+		$result = ( new Font_Favorites( self::$sync ) )->sync();
+
+		update_option(
+			self::FONT_SYNC_OPTION,
+			[
+				'time'    => time(),
+				'error'   => is_wp_error( $result ) ? $result->get_error_message() : '',
+				'added'   => is_wp_error( $result ) ? [] : $result['added'],
+				'removed' => is_wp_error( $result ) ? [] : $result['removed'],
+			],
+			false
+		);
 	}
 
 	/**
@@ -306,6 +337,7 @@ final class Plugin {
 		self::$dirty = false;
 		self::flush();
 		self::invalidate_kadence();
+		self::sync_fonts();
 
 		try {
 			$projector = kadence_blocks()->get( \KadenceWP\KadenceBlocks\Design_Tokens\Projection\Kadence_Option\Projector::class );

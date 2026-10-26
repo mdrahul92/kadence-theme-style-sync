@@ -165,7 +165,7 @@ final class Updater {
 			'download_link' => $release['package'] ?? '',
 			'sections'      => [
 				'description' => 'Feeds the active theme\'s global styles into the Kadence Blocks Style Library as its defaults.',
-				'changelog'   => $release !== null && $release['notes'] !== '' ? wpautop( esc_html( $release['notes'] ) ) : 'See the release notes on GitHub.',
+				'changelog'   => $release !== null && $release['notes'] !== '' ? self::notes_html( $release['notes'] ) : 'See the release notes on GitHub.',
 			],
 		];
 	}
@@ -300,6 +300,37 @@ final class Updater {
 
 		wp_safe_redirect( remove_query_arg( [ 'ktss-check-updates', '_wpnonce' ] ) );
 		exit;
+	}
+
+	/**
+	 * Release notes (the CHANGELOG.md section: "### Heading" and "- item" lines) as simple HTML.
+	 */
+	private static function notes_html( string $notes ): string {
+		$html = '';
+		$list = false;
+
+		foreach ( preg_split( '/\R/', $notes ) ?: [] as $line ) {
+			$line = trim( $line );
+
+			if ( strpos( $line, '- ' ) === 0 ) {
+				$html .= ( $list ? '' : '<ul>' ) . '<li>' . esc_html( substr( $line, 2 ) ) . '</li>';
+				$list  = true;
+				continue;
+			}
+
+			if ( $list ) {
+				$html .= '</ul>';
+				$list  = false;
+			}
+
+			if ( strpos( $line, '#' ) === 0 ) {
+				$html .= '<h4>' . esc_html( ltrim( $line, '# ' ) ) . '</h4>';
+			} elseif ( $line !== '' ) {
+				$html .= '<p>' . esc_html( $line ) . '</p>';
+			}
+		}
+
+		return $html . ( $list ? '</ul>' : '' );
 	}
 
 	public static function flush(): void {

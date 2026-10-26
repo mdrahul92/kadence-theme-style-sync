@@ -88,6 +88,14 @@ interface Theme_Adapter {
 	public function fonts(): array;
 
 	/**
+	 * Every font family the theme's typography settings use, by family name, whoever hosts it (Google,
+	 * self-hosted, system). KTSS\Font_Favorites keeps the ones that are Google fonts.
+	 *
+	 * @return string[]
+	 */
+	public function font_families(): array;
+
+	/**
 	 * Option names whose change means the theme's styles changed.
 	 *
 	 * @return string[]

@@ -42,6 +42,8 @@ final class Admin {
 		'buttons'           => [ 'Buttons', 'Button colors, border, radius and padding, plus the theme button preset.' ],
 		'button_typography' => [ 'Button typography', 'Button font size, weight, style, line height, letter spacing and transform.' ],
 		'fonts'             => [ 'Theme-hosted fonts', 'Fonts the theme or WordPress hosts (theme fonts, Font Library, uploaded or locally hosted fonts) in Kadence font pickers.' ],
+		'favorite_fonts'    => [ 'Favorite fonts', 'Every Google font the theme uses becomes a Style Library favorite, at the top of every Kadence font picker. Favorites you add yourself are never removed.' ],
+		'local_google_fonts' => [ 'Local Google fonts', 'Keeps Kadence’s “Load Google Fonts Locally” setting on, so Google fonts are served from this site.' ],
 	];
 
 	private const TOKEN_LABELS = [
@@ -309,7 +311,7 @@ final class Admin {
 				'section' => __( 'From the theme', 'kadence-theme-style-sync' ),
 				'title'   => __( 'Fonts', 'kadence-theme-style-sync' ),
 				'icon'    => 'type',
-				'count'   => count( $fonts ),
+				'count'   => count( $fonts ) + count( ( new Font_Favorites( $this->sync ) )->google_families() ),
 				'render'  => [ $this, 'render_fonts' ],
 			],
 		];
@@ -598,6 +600,8 @@ final class Admin {
 		$fonts = $adapter !== null && Settings::enabled( 'fonts' ) ? $adapter->fonts() : [];
 		$p     = self::PREFIX;
 
+		$this->render_favorite_fonts();
+
 		if ( $fonts === [] ) {
 			$this->empty_state(
 				__( 'No theme-hosted fonts', 'kadence-theme-style-sync' ),
@@ -624,6 +628,58 @@ final class Admin {
 				</li>
 			<?php endforeach; ?>
 		</ul>
+		<?php
+	}
+
+	private function render_favorite_fonts(): void {
+		$p         = self::PREFIX;
+		$google    = ( new Font_Favorites( $this->sync ) )->google_families();
+		$favorites = array_map( 'strtolower', Font_Favorites::current_favorites() );
+		$last      = get_option( Plugin::FONT_SYNC_OPTION, [] );
+		$enabled   = Settings::enabled( 'favorite_fonts' );
+
+		$this->section_heading( __( 'Google fonts the theme uses', 'kadence-theme-style-sync' ), __( 'Added to the Style Library’s favorite fonts, so they sit at the top of every Kadence font picker.', 'kadence-theme-style-sync' ) );
+		?>
+		<ul class="<?php echo esc_attr( $p ); ?>row-list ktss-list">
+			<li class="<?php echo esc_attr( $p ); ?>list-row">
+				<div class="<?php echo esc_attr( $p ); ?>list-row-main ktss-row">
+					<span class="ktss-chip ktss-chip--empty"></span>
+					<span class="<?php echo esc_attr( $p ); ?>list-row-label"><?php esc_html_e( 'Load Google fonts locally', 'kadence-theme-style-sync' ); ?></span>
+					<span class="ktss-row-text ktss-row-text--muted"><?php esc_html_e( 'Kadence Blocks setting', 'kadence-theme-style-sync' ); ?></span>
+					<?php $this->pill( Font_Favorites::local_fonts_on() ? __( 'On', 'kadence-theme-style-sync' ) : __( 'Off', 'kadence-theme-style-sync' ), Font_Favorites::local_fonts_on() ? 'success' : 'warning' ); ?>
+				</div>
+			</li>
+			<?php if ( $google === [] ) : ?>
+				<li class="<?php echo esc_attr( $p ); ?>list-row">
+					<div class="<?php echo esc_attr( $p ); ?>list-row-main ktss-row">
+						<span class="ktss-chip ktss-chip--empty"></span>
+						<span class="ktss-row-text ktss-row-text--muted"><?php esc_html_e( 'The theme uses no Google fonts (system or uploaded fonts only).', 'kadence-theme-style-sync' ); ?></span>
+					</div>
+				</li>
+			<?php endif; ?>
+			<?php foreach ( $google as $family ) : ?>
+				<?php $is_favorite = in_array( strtolower( $family ), $favorites, true ); ?>
+				<li class="<?php echo esc_attr( $p ); ?>list-row">
+					<div class="<?php echo esc_attr( $p ); ?>list-row-main ktss-row">
+						<span class="ktss-font-preview" style="font-family:'<?php echo esc_attr( $family ); ?>'">Aa</span>
+						<span class="<?php echo esc_attr( $p ); ?>list-row-label"><?php echo esc_html( $family ); ?></span>
+						<span class="ktss-row-text ktss-row-text--muted"><?php esc_html_e( 'Google font', 'kadence-theme-style-sync' ); ?></span>
+						<?php
+						if ( $is_favorite ) {
+							$this->pill( __( 'Favorite', 'kadence-theme-style-sync' ), 'success' );
+						} elseif ( $enabled ) {
+							$this->pill( __( 'Pending', 'kadence-theme-style-sync' ), 'warning', __( 'Added on the next sync, when the theme’s settings change or this page’s settings are saved.', 'kadence-theme-style-sync' ) );
+						} else {
+							$this->pill( __( 'Favorites off', 'kadence-theme-style-sync' ), 'inherited' );
+						}
+						?>
+					</div>
+				</li>
+			<?php endforeach; ?>
+		</ul>
+		<?php if ( is_array( $last ) && ! empty( $last['error'] ) ) : ?>
+			<p class="ktss-prose ktss-prose--muted"><?php echo esc_html( sprintf( /* translators: %s: error */ __( 'Last favorites sync failed: %s', 'kadence-theme-style-sync' ), $last['error'] ) ); ?></p>
+		<?php endif; ?>
 		<?php
 	}
 

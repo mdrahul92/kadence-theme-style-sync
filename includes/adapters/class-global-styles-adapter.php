@@ -382,6 +382,47 @@ final class Global_Styles_Adapter implements Theme_Adapter {
 		return $fonts;
 	}
 
+	/**
+	 * Every font family the theme declares (theme.json, Site Editor, Font Library) and any family named
+	 * directly in its styles, by first family name.
+	 */
+	public function font_families(): array {
+		$data     = $this->data();
+		$families = [];
+		$declared = array_merge(
+			$this->origin_list( $data['theme']['settings']['typography']['fontFamilies'] ?? null, 'theme' ),
+			$this->origin_list( $data['user']['settings']['typography']['fontFamilies'] ?? null, 'theme' ),
+			$this->origin_list( $data['user']['settings']['typography']['fontFamilies'] ?? null, 'custom' )
+		);
+
+		foreach ( $declared as $family ) {
+			if ( is_array( $family ) && is_string( $family['fontFamily'] ?? null ) ) {
+				$families[] = $family['fontFamily'];
+			}
+		}
+
+		array_walk_recursive(
+			$data,
+			static function ( $value, $key ) use ( &$families ): void {
+				if ( $key === 'fontFamily' && is_string( $value ) && strpos( $value, 'var' ) !== 0 ) {
+					$families[] = $value;
+				}
+			}
+		);
+
+		$out = [];
+
+		foreach ( $families as $stack ) {
+			$name = trim( explode( ',', $stack )[0], " \t\n\r\0\x0B\"'" );
+
+			if ( $name !== '' && strpos( $name, '-' ) !== 0 ) {
+				$out[ strtolower( $name ) ] = $name;
+			}
+		}
+
+		return array_values( $out );
+	}
+
 	public function watched_options(): array {
 		return [ 'theme_mods_' . get_stylesheet() ];
 	}
