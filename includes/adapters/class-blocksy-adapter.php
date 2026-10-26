@@ -312,9 +312,13 @@ final class Blocksy_Adapter implements Theme_Adapter {
 					}
 				}
 
+				$label = is_string( $family['display'] ?? null ) && $family['display'] !== '' ? $family['display'] : $family['family'];
+
 				$fonts[] = [
-					'family'  => $family['family'],
-					'label'   => is_string( $family['display'] ?? null ) && $family['display'] !== '' ? $family['display'] : $family['family'],
+					// Uploaded fonts get their real name ("Brandon Text", not Blocksy's internal "ct_font_brandon__text"):
+					// font_face_css() registers the same files under it, so pickers list and search it by name.
+					'family'  => $type === 'file' ? $label : $family['family'],
+					'label'   => $label,
 					'weights' => array_values( array_unique( $weights ) ),
 					'styles'  => array_values( array_unique( $styles ) ),
 					'source'  => $type,
@@ -323,6 +327,87 @@ final class Blocksy_Adapter implements Theme_Adapter {
 		}
 
 		return $fonts;
+	}
+
+	/**
+	 * @font-face rules registering every font uploaded to Blocksy's Custom Fonts extension under its real name,
+	 * pointing at the files Blocksy already serves (Blocksy registers them as "ct_font_<name>" only).
+	 */
+	public function font_face_css(): string {
+		$fonts = [];
+
+		try {
+			if ( class_exists( '\Blocksy\Extensions\CustomFonts\Storage' ) ) {
+				$fonts = ( new \Blocksy\Extensions\CustomFonts\Storage() )->get_normalized_fonts_list();
+			}
+		} catch ( \Throwable $e ) {
+			$fonts = [];
+		}
+
+		if ( ! is_array( $fonts ) || $fonts === [] ) {
+			$settings = get_option( 'blocksy_ext_custom_fonts_settings', [] );
+			$fonts    = is_array( $settings['fonts'] ?? null ) ? $settings['fonts'] : [];
+		}
+
+		$css = '';
+
+		foreach ( $fonts as $font ) {
+			if ( ! is_array( $font ) || ! is_string( $font['name'] ?? null ) || trim( $font['name'] ) === '' || ! is_array( $font['variations'] ?? null ) ) {
+				continue;
+			}
+
+			$family     = str_replace( [ '"', '\\', '<', '>' ], '', trim( $font['name'] ) );
+			$variations = array_values( $font['variations'] );
+
+			if ( ( $font['fontType'] ?? '' ) === 'variable' ) {
+				$regular = self::font_url( $variations[0]['url'] ?? '' );
+				$italic  = self::font_url( $variations[1]['url'] ?? '' );
+
+				if ( $regular !== '' ) {
+					$css .= self::font_face( $family, $regular, $italic === '' ? 'oblique 0deg 5deg' : 'normal', '100 900' );
+				}
+
+				if ( $italic !== '' ) {
+					$css .= self::font_face( $family, $italic, 'italic', '100 900' );
+				}
+
+				continue;
+			}
+
+			foreach ( $variations as $variation ) {
+				$url = self::font_url( is_array( $variation ) ? ( $variation['url'] ?? '' ) : '' );
+
+				if ( $url === '' || ! preg_match( '/^([ni])([1-9])$/', (string) ( $variation['variation'] ?? '' ), $match ) ) {
+					continue;
+				}
+
+				$css .= self::font_face( $family, $url, $match[1] === 'i' ? 'italic' : 'normal', $match[2] . '00' );
+			}
+		}
+
+		return $css;
+	}
+
+	private static function font_face( string $family, string $url, string $style, string $weight ): string {
+		$extension = strtolower( pathinfo( (string) wp_parse_url( $url, PHP_URL_PATH ), PATHINFO_EXTENSION ) );
+		$format    = [ 'woff2' => 'woff2', 'woff' => 'woff', 'ttf' => 'truetype', 'otf' => 'opentype' ][ $extension ] ?? $extension;
+
+		return sprintf(
+			'@font-face{font-family:"%1$s";font-style:%2$s;font-weight:%3$s;font-display:swap;src:url("%4$s") format("%5$s");}',
+			$family,
+			$style,
+			$weight,
+			esc_url_raw( $url ),
+			$format
+		);
+	}
+
+	private static function font_url( $url ): string {
+		if ( ! is_string( $url ) || $url === '' ) {
+			return '';
+		}
+
+		return function_exists( 'blocksy_companion_normalize_site_url' ) ? (string) blocksy_companion_normalize_site_url( $url ) : $url;
 	}
 
 	public function describes_theme_button(): bool {

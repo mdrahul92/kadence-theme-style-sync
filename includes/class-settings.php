@@ -25,7 +25,7 @@ final class Settings {
 		'buttons'           => 'Button colors, border, radius and padding',
 		'button_typography' => 'Button typography',
 		'fonts'             => 'Fonts the theme hosts itself in Kadence font pickers',
-		'favorite_fonts'    => 'Theme Google fonts → Style Library favorite fonts',
+		'favorite_fonts'    => 'Theme fonts (Google and uploaded) → Style Library favorite fonts',
 		'local_google_fonts' => 'Keep Kadence “Load Google Fonts Locally” on',
 	];
 

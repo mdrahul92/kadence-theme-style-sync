@@ -347,6 +347,7 @@ final class Sync {
 					$this->leaf_values(),
 					$this->preset_values(),
 					$adapter->font_families(),
+					array_column( $adapter->fonts(), 'family' ),
 				]
 			)
 		);

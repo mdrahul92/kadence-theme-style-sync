@@ -2,7 +2,7 @@
 Contributors: wpblocks.dev
 Requires at least: 6.5
 Requires PHP: 7.4
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 License: GPLv2 or later
 
 Feeds the active theme's global styles into the Kadence Blocks Style Library (Kadence Blocks 3.8+) as its defaults. Works with any block theme through WordPress global styles, with a richer adapter for Blocksy.
@@ -44,10 +44,13 @@ To read a theme's own settings in more depth, implement KTSS\Adapters\Theme_Adap
 
 == Notes ==
 
-* Kadence's Style Library font list shows a custom font by its CSS family (Blocksy names uploads `ct_font_<name>`); the block editor shows the display name.
+* Blocksy uploaded fonts are registered under their real name (Blocksy itself names them `ct_font_<name>`), so Kadence's pickers list and search them by name.
 * Blocksy heading typography is not mapped: Kadence's heading preset deliberately leaves font sizes to the theme's own h1-h6 styles.
 
 == Changelog ==
+
+= 1.3.1 =
+* Blocksy custom fonts show in Kadence font pickers under their real name and become Style Library favorites.
 
 = 1.3.0 =
 * Theme Google fonts become Style Library favorite fonts (and are removed again when the theme stops using them).

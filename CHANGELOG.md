@@ -2,6 +2,14 @@
 
 All notable changes to Theme Style Sync for Kadence Blocks. Each release's section becomes its GitHub release notes and the "View details" changelog in WordPress.
 
+## 1.3.1 - 2026-10-26
+
+### Fixed
+- Blocksy custom (uploaded) fonts now show in Kadence's font pickers under their real name ("Brandon Text" instead of Blocksy's internal "ct_font_brandon__text"), so the Custom tab's search finds them. The plugin registers Blocksy's uploaded files under that name on the front end, in the editor and on the Style Library screen.
+
+### Added
+- Fonts the theme hosts itself (Blocksy uploaded fonts and Local Google Fonts, block-theme and Font Library fonts) are added to the Style Library favorites too, next to the Google fonts the theme uses.
+
 ## 1.3.0 - 2026-10-26
 
 ### Added

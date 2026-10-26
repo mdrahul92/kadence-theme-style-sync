@@ -42,7 +42,7 @@ final class Admin {
 		'buttons'           => [ 'Buttons', 'Button colors, border, radius and padding, plus the theme button preset.' ],
 		'button_typography' => [ 'Button typography', 'Button font size, weight, style, line height, letter spacing and transform.' ],
 		'fonts'             => [ 'Theme-hosted fonts', 'Fonts the theme or WordPress hosts (theme fonts, Font Library, uploaded or locally hosted fonts) in Kadence font pickers.' ],
-		'favorite_fonts'    => [ 'Favorite fonts', 'Every Google font the theme uses becomes a Style Library favorite, at the top of every Kadence font picker. Favorites you add yourself are never removed.' ],
+		'favorite_fonts'    => [ 'Favorite fonts', 'Every Google font the theme uses and every font it hosts itself (uploaded custom fonts, local Google fonts) becomes a Style Library favorite, at the top of every Kadence font picker. Favorites you add yourself are never removed.' ],
 		'local_google_fonts' => [ 'Local Google fonts', 'Keeps Kadence’s “Load Google Fonts Locally” setting on, so Google fonts are served from this site.' ],
 	];
 
@@ -311,7 +311,7 @@ final class Admin {
 				'section' => __( 'From the theme', 'kadence-theme-style-sync' ),
 				'title'   => __( 'Fonts', 'kadence-theme-style-sync' ),
 				'icon'    => 'type',
-				'count'   => count( $fonts ) + count( ( new Font_Favorites( $this->sync ) )->google_families() ),
+				'count'   => count( ( new Font_Favorites( $this->sync ) )->favorite_families() ),
 				'render'  => [ $this, 'render_fonts' ],
 			],
 		];
@@ -633,12 +633,14 @@ final class Admin {
 
 	private function render_favorite_fonts(): void {
 		$p         = self::PREFIX;
-		$google    = ( new Font_Favorites( $this->sync ) )->google_families();
+		$finder    = new Font_Favorites( $this->sync );
+		$google    = $finder->favorite_families();
+		$is_google = array_map( 'strtolower', $finder->google_families() );
 		$favorites = array_map( 'strtolower', Font_Favorites::current_favorites() );
 		$last      = get_option( Plugin::FONT_SYNC_OPTION, [] );
 		$enabled   = Settings::enabled( 'favorite_fonts' );
 
-		$this->section_heading( __( 'Google fonts the theme uses', 'kadence-theme-style-sync' ), __( 'Added to the Style Library’s favorite fonts, so they sit at the top of every Kadence font picker.', 'kadence-theme-style-sync' ) );
+		$this->section_heading( __( 'Theme fonts', 'kadence-theme-style-sync' ), __( 'The Google fonts the theme uses and the fonts it hosts itself, added to the Style Library’s favorite fonts so they sit at the top of every Kadence font picker.', 'kadence-theme-style-sync' ) );
 		?>
 		<ul class="<?php echo esc_attr( $p ); ?>row-list ktss-list">
 			<li class="<?php echo esc_attr( $p ); ?>list-row">
@@ -653,7 +655,7 @@ final class Admin {
 				<li class="<?php echo esc_attr( $p ); ?>list-row">
 					<div class="<?php echo esc_attr( $p ); ?>list-row-main ktss-row">
 						<span class="ktss-chip ktss-chip--empty"></span>
-						<span class="ktss-row-text ktss-row-text--muted"><?php esc_html_e( 'The theme uses no Google fonts (system or uploaded fonts only).', 'kadence-theme-style-sync' ); ?></span>
+						<span class="ktss-row-text ktss-row-text--muted"><?php esc_html_e( 'The theme uses system fonts only.', 'kadence-theme-style-sync' ); ?></span>
 					</div>
 				</li>
 			<?php endif; ?>
@@ -663,7 +665,7 @@ final class Admin {
 					<div class="<?php echo esc_attr( $p ); ?>list-row-main ktss-row">
 						<span class="ktss-font-preview" style="font-family:'<?php echo esc_attr( $family ); ?>'">Aa</span>
 						<span class="<?php echo esc_attr( $p ); ?>list-row-label"><?php echo esc_html( $family ); ?></span>
-						<span class="ktss-row-text ktss-row-text--muted"><?php esc_html_e( 'Google font', 'kadence-theme-style-sync' ); ?></span>
+						<span class="ktss-row-text ktss-row-text--muted"><?php echo in_array( strtolower( $family ), $is_google, true ) ? esc_html__( 'Google font used by the theme', 'kadence-theme-style-sync' ) : esc_html__( 'Hosted by the theme', 'kadence-theme-style-sync' ); ?></span>
 						<?php
 						if ( $is_favorite ) {
 							$this->pill( __( 'Favorite', 'kadence-theme-style-sync' ), 'success' );

@@ -1,6 +1,7 @@
 <?php
 /**
- * Puts the theme's Google fonts at the top of every Kadence font picker, as Style Library favorites, and keeps
+ * Puts the theme's fonts (the Google fonts it uses and the fonts it hosts itself) at the top of every Kadence
+ * font picker, as Style Library favorites, and keeps
  * Kadence's "Load Google Fonts Locally" setting on so those fonts are served from the site.
  *
  * Favorites live in the active Style Library's saved document, so they are written through Kadence's own
@@ -56,12 +57,41 @@ final class Font_Favorites {
 	}
 
 	/**
+	 * Every font that should be a favorite: the Google fonts the theme uses, then the fonts the theme hosts
+	 * itself (uploaded fonts, locally hosted Google fonts, theme.json and Font Library fonts), by the name the
+	 * pickers list them under.
+	 *
+	 * @return string[]
+	 */
+	public function favorite_families(): array {
+		$out = [];
+
+		foreach ( $this->google_families() as $family ) {
+			$out[ strtolower( $family ) ] = $family;
+		}
+
+		$adapter = $this->sync->adapter();
+
+		if ( $adapter !== null && Settings::enabled( 'fonts' ) ) {
+			foreach ( $adapter->fonts() as $font ) {
+				$key = strtolower( $font['family'] );
+
+				if ( ! isset( $out[ $key ] ) && $font['family'] !== '' ) {
+					$out[ $key ] = $font['family'];
+				}
+			}
+		}
+
+		return array_values( $out );
+	}
+
+	/**
 	 * Bring the active library's favorites in line with the theme.
 	 *
 	 * @return array{added: string[], removed: string[]}|\WP_Error
 	 */
 	public function sync() {
-		$wanted = Settings::enabled( 'favorite_fonts' ) ? $this->google_families() : [];
+		$wanted = Settings::enabled( 'favorite_fonts' ) ? $this->favorite_families() : [];
 
 		try {
 			$container = kadence_blocks();
